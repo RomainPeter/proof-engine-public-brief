@@ -1,7 +1,7 @@
 flowchart LR
-  G[Goal + Constraints] --> P[Plan (Π)]
+  G[Goal + Constraints] --> P[Plan]
   P -->|operator| O[Orchestrator]
-  O -->|micro-prompt| L[Semantic Engine (LLM, stub)]
+  O -->|micro-prompt| L[Semantic Engine LLM stub]
   L -->|candidate| O2[Orchestrator]
   O2 -->|CCA/PCAP| V[Formal Verifier]
   V -->|accepted/rejected + attestation| O3[Orchestrator]
