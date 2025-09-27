@@ -27,7 +27,7 @@ jobs:
       - name: Build PCAP (pass)
         run: .venv/bin/python -m proof_engine.orchestrator --candidate examples/candidates/add_v1.py --out out/pcap.add.json
       - name: Verify (pass)
-        run: .venv/bin/python -m proof_engine.verifier verify --pcap out/pcap.add.json
+        run: .venv/bin/python -m proof_engine.verifier --pcap out/pcap.add.json
       - name: Upload attestation
         uses: actions/upload-artifact@v4
         with:
@@ -50,7 +50,7 @@ jobs:
         id: verify
         run: |
           set +e
-          .venv/bin/python -m proof_engine.verifier verify --pcap out/pcap.add.json
+          .venv/bin/python -m proof_engine.verifier --pcap out/pcap.add.json
           echo "exit_code=$?" >> $GITHUB_OUTPUT
       - name: Assert verifier failed (document rejection)
         run: |

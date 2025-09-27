@@ -37,8 +37,7 @@ def demo_sign(payload: bytes) -> str:
     return hmac.new(key, payload, hashlib.sha256).hexdigest()
 
 
-@app.command("verify")
-def verify(pcap: Path = typer.Option(..., exists=True)):
+def main(pcap: Path = typer.Option(..., exists=True)):
     ATTEST.mkdir(parents=True, exist_ok=True)
     pcap_obj = PCAP.model_validate_json(pcap.read_text())
     schema = json.loads((SCHEMAS / "pcap.schema.json").read_text())
@@ -90,4 +89,4 @@ def verify(pcap: Path = typer.Option(..., exists=True)):
 
 
 if __name__ == "__main__":
-    app()
+    typer.run(main)
