@@ -1,9 +1,19 @@
 from __future__ import annotations
-import json, subprocess, os, hmac, hashlib, time, sys
+
+import hashlib
+import hmac
+import json
+import os
+import subprocess
+import sys
+import time
+from importlib import metadata as md
 from pathlib import Path
+
 import typer
-from rich import print
 from jsonschema import validate
+from rich import print
+
 from .pcap import PCAP
 
 app = typer.Typer(help="Formal Verifier: validate PCAP, run checks, emit attestation.")
@@ -52,13 +62,23 @@ def verify(pcap: Path = typer.Option(..., exists=True)):
 
     accepted = all(v["ok"] for v in results.values())
 
+    tool_versions = {
+        "python": sys.version,
+        "typer": md.version("typer"),
+        "click": md.version("click"),
+        "pytest": md.version("pytest"),
+        "ruff": md.version("ruff"),
+        "mypy": md.version("mypy"),
+        "jsonschema": md.version("jsonschema"),
+    }
+
     att = {
         "timestamp": int(time.time()),
         "pcap_path": str(pcap),
         "context_hash": pcap_obj.context_hash,
         "accepted": accepted,
         "checks": results,
-        "tool_versions": {},
+        "tool_versions": tool_versions,
     }
     payload = json.dumps(att, sort_keys=True).encode()
     att["demo_signature"] = demo_sign(payload)

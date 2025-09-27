@@ -16,6 +16,14 @@ jobs:
           python-version: '3.11'
       - run: python -m venv .venv
       - run: .venv/bin/pip install -r requirements.txt
+      - name: Versions
+        run: |
+          .venv/bin/python - <<'PY'
+          import typer, click, sys
+          print("python:", sys.version)
+          print("typer:", typer.__version__)
+          print("click:", click.__version__)
+          PY
       - name: Build PCAP (pass)
         run: .venv/bin/python -m proof_engine.orchestrator build-pcap --candidate examples/candidates/add_v1.py --out out/pcap.add.json
       - name: Verify (pass)
