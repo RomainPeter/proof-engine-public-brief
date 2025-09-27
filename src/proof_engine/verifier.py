@@ -64,19 +64,36 @@ def main(pcap: Path = typer.Option(..., exists=True)):
 
     results = {}
 
+    # Debug: Check workspace contents
+    print(f"[yellow]Workspace contents:[/yellow]")
+    for item in WORK.rglob("*"):
+        print(f"  {item.relative_to(WORK)}")
+    
+    # Debug: Check if files exist
+    impl_file = WORK / "candidates" / "impl.py"
+    test_dir = WORK / "tests"
+    print(f"[yellow]Files exist:[/yellow]")
+    print(f"  impl.py: {impl_file.exists()}")
+    print(f"  tests/: {test_dir.exists()}")
+    if impl_file.exists():
+        print(f"  impl.py content preview: {impl_file.read_text()[:100]}...")
+
     # Static: ruff
     code_r, code_o = run([sys.executable, "-m", "ruff", "check", "candidates/impl.py"], cwd=WORK)
     results["ruff"] = {"ok": code_r == 0, "output": code_o}
+    print(f"[yellow]Ruff result:[/yellow] ok={code_r == 0}, output={code_o[:200]}...")
 
     # Static types: mypy
     mypy_r, mypy_o = run(
         [sys.executable, "-m", "mypy", "--python-version", "3.11", "candidates/impl.py"], cwd=WORK
     )
     results["mypy"] = {"ok": mypy_r == 0, "output": mypy_o}
+    print(f"[yellow]Mypy result:[/yellow] ok={mypy_r == 0}, output={mypy_o[:200]}...")
 
     # Unit tests: pytest
     pytest_r, pytest_o = run([sys.executable, "-m", "pytest", "-q"], cwd=WORK)
     results["pytest"] = {"ok": pytest_r == 0, "output": pytest_o}
+    print(f"[yellow]Pytest result:[/yellow] ok={pytest_r == 0}, output={pytest_o[:200]}...")
 
     accepted = all(v["ok"] for v in results.values())
 
