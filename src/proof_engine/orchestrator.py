@@ -12,8 +12,6 @@ from rich import print
 
 from .pcap import Justification, PCAP, ProofRef
 
-app = typer.Typer(help="Orchestrator: build PCAPs and prepare hermetic workspace.")
-
 ROOT = Path(__file__).resolve().parents[2]
 EXAMPLES = ROOT / "examples"
 OUT = ROOT / "out"
@@ -56,8 +54,7 @@ ObligationsOption = Annotated[
 OutOption = Annotated[Path, typer.Option("--out", help="Output PCAP file")]
 
 
-@app.command("build-pcap")
-def build_pcap(
+def main(
     candidate: CandidateOption,
     obligations_path: ObligationsOption = EXAMPLES / "constraints" / "obligations.simple.json",
     out: OutOption = OUT / "pcap.add.json",
@@ -86,4 +83,4 @@ def build_pcap(
 
 
 if __name__ == "__main__":
-    app()
+    typer.run(main)
