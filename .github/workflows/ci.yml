@@ -25,7 +25,7 @@ jobs:
           print("click:", click.__version__)
           PY
       - name: Build PCAP (pass)
-        run: .venv/bin/python -m proof_engine.orchestrator build-pcap --candidate examples/candidates/add_v1.py --out out/pcap.add.json
+        run: .venv/bin/python -m proof_engine.orchestrator --candidate examples/candidates/add_v1.py --out out/pcap.add.json
       - name: Verify (pass)
         run: .venv/bin/python -m proof_engine.verifier verify --pcap out/pcap.add.json
       - name: Upload attestation
@@ -45,7 +45,7 @@ jobs:
       - run: python -m venv .venv
       - run: .venv/bin/pip install -r requirements.txt
       - name: Build PCAP (fail)
-        run: .venv/bin/python -m proof_engine.orchestrator build-pcap --candidate examples/candidates/add_buggy.py --out out/pcap.add.json
+        run: .venv/bin/python -m proof_engine.orchestrator --candidate examples/candidates/add_buggy.py --out out/pcap.add.json
       - name: Verify (expected to fail)
         id: verify
         run: |
