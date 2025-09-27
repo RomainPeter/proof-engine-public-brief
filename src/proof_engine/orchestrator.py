@@ -4,12 +4,13 @@ import hashlib
 import json
 import shutil
 from pathlib import Path
+from typing import Annotated
 
 import typer
 from pydantic import BaseModel
 from rich import print
 
-from .pcap import PCAP, Justification, ProofRef
+from .pcap import Justification, PCAP, ProofRef
 
 app = typer.Typer(help="Orchestrator: build PCAPs and prepare hermetic workspace.")
 
@@ -46,19 +47,21 @@ def prepare_workspace(candidate: Path) -> tuple[Path, Path]:
     return WORK / "candidates" / "impl.py", WORK / "tests"
 
 
+CandidateOption = Annotated[
+    Path, typer.Option("--candidate", "-c", exists=True, help="Path to candidate .py file")
+]
+ObligationsOption = Annotated[
+    Path, typer.Option("--obligations", exists=True, help="Path to obligations JSON")
+]
+OutOption = Annotated[Path, typer.Option("--out", help="Output PCAP file")]
+
+
 @app.command("build-pcap")
 def build_pcap(
-    candidate: str = typer.Argument(..., help="Path to candidate .py file"),
-    obligations_path: str = typer.Option(
-        str(EXAMPLES / "constraints" / "obligations.simple.json"),
-        "--obligations",
-        help="Path to obligations JSON",
-    ),
-    out: str = typer.Option(str(OUT / "pcap.add.json"), "--out", help="Output PCAP file"),
+    candidate: CandidateOption,
+    obligations_path: ObligationsOption = EXAMPLES / "constraints" / "obligations.simple.json",
+    out: OutOption = OUT / "pcap.add.json",
 ):
-    candidate = Path(candidate)
-    obligations_path = Path(obligations_path)
-    out = Path(out)
     OUT.mkdir(exist_ok=True, parents=True)
     impl_py, tests_dir = prepare_workspace(candidate)
     obligations = json.loads(obligations_path.read_text())
