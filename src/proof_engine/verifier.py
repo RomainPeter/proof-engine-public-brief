@@ -1,17 +1,9 @@
 from __future__ import annotations
-
-import hashlib
-import hmac
-import json
-import os
-import subprocess
-import time
+import json, subprocess, os, hmac, hashlib, time, sys
 from pathlib import Path
-
 import typer
-from jsonschema import validate
 from rich import print
-
+from jsonschema import validate
 from .pcap import PCAP
 
 app = typer.Typer(help="Formal Verifier: validate PCAP, run checks, emit attestation.")
@@ -45,15 +37,17 @@ def verify(pcap: Path = typer.Option(..., exists=True)):
     results = {}
 
     # Static: ruff
-    code_r, code_o = run(["ruff", "check", "candidates/impl.py"], cwd=WORK)
+    code_r, code_o = run([sys.executable, "-m", "ruff", "check", "candidates/impl.py"], cwd=WORK)
     results["ruff"] = {"ok": code_r == 0, "output": code_o}
 
     # Static types: mypy
-    mypy_r, mypy_o = run(["mypy", "--python-version", "3.11", "candidates/impl.py"], cwd=WORK)
+    mypy_r, mypy_o = run(
+        [sys.executable, "-m", "mypy", "--python-version", "3.11", "candidates/impl.py"], cwd=WORK
+    )
     results["mypy"] = {"ok": mypy_r == 0, "output": mypy_o}
 
     # Unit tests: pytest
-    pytest_r, pytest_o = run(["pytest", "-q"], cwd=WORK)
+    pytest_r, pytest_o = run([sys.executable, "-m", "pytest", "-q"], cwd=WORK)
     results["pytest"] = {"ok": pytest_r == 0, "output": pytest_o}
 
     accepted = all(v["ok"] for v in results.values())

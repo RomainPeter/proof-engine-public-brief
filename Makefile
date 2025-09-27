@@ -1,3 +1,5 @@
+export PYTHONPATH=src
+
 PY=python3
 VENV=.venv
 PIP=$(VENV)/bin/pip

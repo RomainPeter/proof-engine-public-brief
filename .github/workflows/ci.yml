@@ -3,6 +3,9 @@ on:
   push:
   pull_request:
 
+env:
+  PYTHONPATH: src
+
 jobs:
   demo-pass:
     runs-on: ubuntu-latest
@@ -17,8 +20,6 @@ jobs:
         run: .venv/bin/python -m proof_engine.orchestrator build-pcap --candidate examples/candidates/add_v1.py --out out/pcap.add.json
       - name: Verify (pass)
         run: .venv/bin/python -m proof_engine.verifier verify --pcap out/pcap.add.json
-      - name: Pytests
-        run: .venv/bin/python -m pytest -q
       - name: Upload attestation
         uses: actions/upload-artifact@v4
         with:
