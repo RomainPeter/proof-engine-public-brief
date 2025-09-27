@@ -4,6 +4,7 @@ import hashlib
 import hmac
 import json
 import os
+import shutil
 import subprocess
 import sys
 import time
@@ -42,6 +43,24 @@ def main(pcap: Path = typer.Option(..., exists=True)):
     pcap_obj = PCAP.model_validate_json(pcap.read_text())
     schema = json.loads((SCHEMAS / "pcap.schema.json").read_text())
     validate(instance=json.loads(pcap.read_text()), schema=schema)
+
+    # Reconstruct workspace from PCAP metadata
+    if WORK.exists():
+        shutil.rmtree(WORK)
+    (WORK / "candidates").mkdir(parents=True, exist_ok=True)
+    (WORK / "tests").mkdir(parents=True, exist_ok=True)
+    
+    # Get candidate path from PCAP metadata
+    candidate_path = Path(pcap_obj.metadata.get("candidate", "examples/candidates/add_v1.py"))
+    if not candidate_path.is_absolute():
+        candidate_path = ROOT / candidate_path
+    
+    # Copy candidate as candidates/impl.py
+    shutil.copy(candidate_path, WORK / "candidates" / "impl.py")
+    
+    # Copy tests
+    src_tests = ROOT / "examples" / "proofs" / "tests"
+    shutil.copytree(src_tests, WORK / "tests", dirs_exist_ok=True)
 
     results = {}
 
